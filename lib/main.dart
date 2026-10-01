@@ -18,6 +18,11 @@ const Color kRose = Color(0xFFFF6B8B); // danger
 const Color kYellow = Color(0xFFFFE27A);
 const Color kBg = Color(0xFF1A1040);
 const Color kPanel = Color(0xB31E1450);
+const Color kFullRed = Color(0xFFFF3B3B);
+const List<Shadow> kRedGlow = [
+  Shadow(color: Color(0xFFFF1F1F), blurRadius: 8),
+  Shadow(color: Color(0xFFFF1F1F), blurRadius: 16),
+];
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -356,6 +361,7 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
       } else {
         offline = false;
         info = r;
+        _addActivity('[${_ts()}] ${r.players}/${r.maxPlayers} | ${r.pingMs}ms | ${r.map}');
         if (r.map != lastMap) {
           _addActivity('[${_ts()}] map: ${r.map}');
           if (alertsOn && r.map == favMap) _fire('FAV MAP LIVE: ${r.map}');
@@ -377,7 +383,7 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
 
   void _addActivity(String s) {
     activity.insert(0, s);
-    if (activity.length > 60) activity.removeLast();
+    if (activity.length > 200) activity.removeLast();
   }
 
   void _fire(String msg) {
@@ -503,6 +509,7 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
   // --- STATUS ---
   Widget _statusTab() {
     final i = info;
+    final full = i != null && i.maxPlayers > 0 && i.players >= i.maxPlayers - 2;
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -543,14 +550,18 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('ACTIVITY LOG', style: TextStyle(color: Colors.white54, fontSize: 11)),
+                  Text('ACTIVITY LOG',
+                      style: TextStyle(
+                          color: full ? kFullRed : Colors.white54,
+                          fontSize: 11,
+                          shadows: full ? kRedGlow : null)),
                   const SizedBox(height: 6),
                   Expanded(
                     child: LayoutBuilder(builder: (ctx, c) {
                       final n = (c.maxHeight / 17).floor().clamp(1, 60);
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [for (final a in activity.take(n)) SizedBox(height: 17, child: _logLine(a))],
+                        children: [for (final a in activity.take(n)) SizedBox(height: 17, child: _logLine(a, full))],
                       );
                     }),
                   ),
@@ -565,15 +576,21 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
     );
   }
 
-  // colors only the map name yellow
-  Widget _logLine(String line) {
+  // colors only the map name yellow; whole log glows red when the server is nearly full
+  Widget _logLine(String line, bool full) {
+    final isStatus = line.contains(' | ');
+    TextStyle st(Color c) => TextStyle(
+          color: full ? kFullRed : (isStatus ? Colors.white60 : c),
+          fontSize: 12,
+          shadows: full ? kRedGlow : null,
+        );
     final idx = line.indexOf('map: ');
     if (idx == -1) {
-      return Text(line, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kGreen, fontSize: 12));
+      return Text(line, maxLines: 1, overflow: TextOverflow.ellipsis, style: st(kGreen));
     }
     return Text.rich(TextSpan(children: [
-      TextSpan(text: line.substring(0, idx + 5), style: const TextStyle(color: kGreen, fontSize: 12)),
-      TextSpan(text: line.substring(idx + 5), style: const TextStyle(color: kYellow, fontSize: 12)),
+      TextSpan(text: line.substring(0, idx + 5), style: st(kGreen)),
+      TextSpan(text: line.substring(idx + 5), style: st(kYellow)),
     ]), maxLines: 1, overflow: TextOverflow.ellipsis);
   }
 
