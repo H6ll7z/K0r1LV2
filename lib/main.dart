@@ -19,6 +19,7 @@ const Color kYellow = Color(0xFFFFE27A);
 const Color kBg = Color(0xFF1A1040);
 const Color kPanel = Color(0xB31E1450);
 const Color kFullRed = Color(0xFFFF3B3B);
+const String kMapCollectionUrl = 'https://steamcommunity.com/sharedfiles/filedetails/?id=3070555563';
 const List<Shadow> kRedGlow = [
   Shadow(color: Color(0xFFFF1F1F), blurRadius: 8),
   Shadow(color: Color(0xFFFF1F1F), blurRadius: 16),
@@ -184,18 +185,184 @@ Future<List<PlayerInfo>?> queryPlayers() async {
 }
 
 // ====== DATA ======
-class MapTip {
-  final String name, diff, tip;
-  const MapTip(this.name, this.diff, this.tip);
-}
-
-const List<MapTip> kMaps = [
-  MapTip('ze_imperium', 'MED', 'Stick with the group, hold choke points.'),
-  MapTip('ze_berserk', 'HARD', 'Watch the boss phases, keep moving.'),
-  MapTip('ze_dreamin', 'MED', 'Learn the route, rush the escape.'),
-  MapTip('ze_minas_tirith', 'HARD', 'Hold the gate, knock back zombies.'),
-  MapTip('ze_sandstorm', 'EASY', 'Good warmup map, simple route.'),
-  MapTip('ze_ffvii_mako', 'MED', 'Coordinate the elevator holds.'),
+// Built-in fallback (A to L of GFL's workshop collection). The app loads the full live list at startup.
+const List<String> kFallbackMaps = [
+  'ze__hell_p',
+  'ze_1_schizo',
+  'ze_2012_p',
+  'ze_2049',
+  'ze_30_seconds_p',
+  'ze_8bit',
+  'ze_a_e_s_t_h_e_t_i_c_p',
+  'ze_abandoned_industry_p',
+  'ze_abandoned_project_p',
+  'ze_aepp_nano_grid2_p',
+  'ze_alien_mountain_escape_p',
+  'ze_alien_shooter',
+  'ze_ancient_wrath_p',
+  'ze_antartika_p',
+  'ze_apollo_p',
+  'ze_aragami_p',
+  'ze_arcana_heart',
+  'ze_arctic_escape_p',
+  'ze_artika_base_p',
+  'ze_ashen_keep_p',
+  'ze_asiangirl_mm11el4nu4cp2io1yv7_r_p',
+  'ze_atix_apocalypse_p',
+  'ze_atix_panic_2017_p',
+  'ze_atos',
+  'ze_avalanche_reboot',
+  'ze_azathoth_p',
+  'ze_aztecnoob_p',
+  'ze_backrooms',
+  'ze_backrooms_deathbed_v1',
+  'ze_backrooms_insomnia',
+  'ze_backrooms_lenny',
+  'ze_barrage_p',
+  'ze_bathroom',
+  'ze_best_korea_p',
+  'ze_bible_adventure_ot_p',
+  'ze_bigboo_n64',
+  'ze_biohazard_manor_004_p',
+  'ze_biohazard2_rpd_004_p',
+  'ze_bioluminescent',
+  'ze_bisounours_party',
+  'ze_black_lion_p',
+  'ze_blackmesa_escape_p',
+  'ze_blue_magic_castle',
+  'ze_boacceho_p',
+  'ze_boatescape101_p',
+  'ze_bp-infested-prison_p',
+  'ze_breakable_p',
+  'ze_bunny_story',
+  'ze_castle_bridge_p',
+  'ze_castlevania',
+  'ze_cat_girl_hentai',
+  'ze_celestial_ops',
+  'ze_chicago_bean_gassy_fart_life',
+  'ze_chicken_lords_tower_p',
+  'ze_christmas_infection_p',
+  'ze_christmas_p',
+  'ze_chronus_p',
+  'ze_circle',
+  'ze_colorlicouspilar_p',
+  'ze_colors_p',
+  'ze_cookie',
+  'ze_crashbandicoot_p',
+  'ze_crazy_christmas_p',
+  'ze_crazy_escape_p',
+  'ze_cursed_bear_tales',
+  'ze_dangerous_waters_p',
+  'ze_dark_souls',
+  'ze_deadcore',
+  'ze_death_star_escape_p',
+  'ze_deathinvain_palace',
+  'ze_deepice_p',
+  'ze_defense3002_p',
+  'ze_descent_into_cerberon_p',
+  'ze_desperate_soul',
+  'ze_diddle',
+  'ze_djinn',
+  'ze_dnb_realms_a1',
+  'ze_doomglaven',
+  'ze_downstairs',
+  'ze_dragonball_snakeway_p',
+  'ze_dreamin',
+  'ze_dystopia_p',
+  'ze_einstein_p',
+  'ze_eizures_b1_1',
+  'ze_elevator_escape_p',
+  'ze_elmas',
+  'ze_emerald',
+  'ze_empirecity_p',
+  'ze_enick_p',
+  'ze_escape_the_eye_p',
+  'ze_eternal_grove',
+  'ze_evernight',
+  'ze_evil_mansion_p',
+  'ze_exchange_innovation_p',
+  'ze_exit_this_earths_atomosphere_p',
+  'ze_fapescape_p',
+  'ze_fapescape_rote_p',
+  'ze_farmhouse_p',
+  'ze_fast_escape_p',
+  'ze_ffvii_cosmo_canyon_v5_p',
+  'ze_ffvii_fako_reactor',
+  'ze_ffvii_mako_reactor_v5_p',
+  'ze_ffvii_mako_reactor_v6_p',
+  'ze_ffvii_temple_ancient',
+  'ze_ffxii_bestersand_beta',
+  'ze_ffxii_mt_bur_omisace_v6',
+  'ze_ffxii_paramina_rift',
+  'ze_ffxii_westersand_v8',
+  'ze_ffxiv_wanderers_palace_v6_2',
+  'ze_fireboy_watergirl',
+  'ze_firewall_laboratory_part1_p',
+  'ze_firewall_laboratory_part2_p',
+  'ze_flex_p',
+  'ze_forestbunkers_p',
+  'ze_forius_just_run_p',
+  'ze_forsaken_temple',
+  'ze_frostdrake_tower_p',
+  'ze_frozentemple_p',
+  'ze_funny_runner',
+  'ze_games_p',
+  'ze_gods_wrath_p',
+  'ze_goldeneye_64',
+  'ze_golubenkaya_meow',
+  'ze_grau_p',
+  'ze_greece_escape_p',
+  'ze_greencity_p',
+  'ze_gris_p',
+  'ze_halloween_house_p',
+  'ze_haunted_lab_escape_p',
+  'ze_hazard_escape_p',
+  'ze_hidden_fortress_p',
+  'ze_hold_em_p',
+  'ze_hydroponic_garden',
+  'ze_hypernova_p',
+  'ze_iamlegend_p',
+  'ze_ice_hold_p',
+  'ze_icebreaker',
+  'ze_icecap_escape_p',
+  'ze_iceskate',
+  'ze_idk_what_to_call_this',
+  'ze_imperium',
+  'ze_inboxed_p',
+  'ze_indiana_jones_004_p',
+  'ze_industrial_dejavu',
+  'ze_infested-industry_p',
+  'ze_infiltration_final_p',
+  'ze_interception_p',
+  'ze_isla_nublar_p',
+  'ze_journey_p',
+  'ze_jp_trip_k1ne2',
+  'ze_jurassic_park_story_p',
+  'ze_jurassicpark_escape_p',
+  'ze_jurassicpark_p',
+  'ze_kaffe_escape_p',
+  'ze_kage_cs2',
+  'ze_kebab_immigrant',
+  'ze_kitchen',
+  'ze_knife_stray_p',
+  'ze_kraznov_poopata_p',
+  'ze_kz',
+  'ze_l0v0l_p',
+  'ze_last_man_standing_p',
+  'ze_lazers_p',
+  'ze_lego',
+  'ze_lemonade',
+  'ze_lemonysnickets_p',
+  'ze_lethal_company',
+  'ze_licciana_escape_p',
+  'ze_lila_panic_escape_p',
+  'ze_lolxd_p_final',
+  'ze_loom',
+  'ze_lorem_ipsum_p',
+  'ze_lotr_helms_deep_p',
+  'ze_lotr_isengard',
+  'ze_lotr_minas_tiret_p',
+  'ze_lotr_minas_tirith_p',
 ];
 
 class LogEntry {
@@ -245,13 +412,20 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
   final adminCtl = TextEditingController();
   DateTime? mapStart;
 
+  // maps
+  List<String> allMaps = kFallbackMaps;
+  bool mapsLive = false;
+  bool mapsLoading = false;
+  String mapQuery = '';
+  final searchCtl = TextEditingController();
+
   SharedPreferences? prefs;
 
   @override
   void initState() {
     super.initState();
     tabs = TabController(length: 6, vsync: this);
-    _load();
+    _load().then((_) => _loadMaps());
     _refresh();
     poll = Timer.periodic(const Duration(seconds: 3), (_) => _refresh());
   }
@@ -262,6 +436,7 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
     tabs.dispose();
     mapCtl.dispose();
     adminCtl.dispose();
+    searchCtl.dispose();
     super.dispose();
   }
 
@@ -279,6 +454,8 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
       if (gn != null) gameNight = DateTime.tryParse(gn);
       adminNames = prefs!.getString('admins') ?? '';
       adminCtl.text = adminNames;
+      final mc = prefs!.getStringList('mapsCache');
+      if (mc != null && mc.length > 50) allMaps = mc;
     });
   }
 
@@ -364,7 +541,7 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
         _addActivity('[${_ts()}] ${r.players}/${r.maxPlayers} | ${r.pingMs}ms | ${r.map}');
         if (r.map != lastMap) {
           _addActivity('[${_ts()}] map: ${r.map}');
-          if (alertsOn && r.map == favMap) _fire('FAV MAP LIVE: ${r.map}');
+          if (alertsOn && r.map.toLowerCase() == favMap.toLowerCase()) _fire('FAV MAP LIVE: ${r.map}');
           lastMap = r.map;
           mapStart = DateTime.now();
           marks.clear();
@@ -725,20 +902,10 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('FAVORITE MAP TRIGGER', style: TextStyle(color: kGreen)),
-                DropdownButton<String>(
-                  isExpanded: true,
-                  dropdownColor: kPanel,
-                  value: kMaps.any((m) => m.name == favMap) ? favMap : kMaps.first.name,
-                  items: [
-                    for (final m in kMaps)
-                      DropdownMenuItem(value: m.name, child: Text(m.name, style: const TextStyle(color: kYellow))),
-                  ],
-                  onChanged: (v) {
-                    if (v == null) return;
-                    setState(() => favMap = v);
-                    prefs?.setString('favMap', v);
-                  },
-                ),
+                const SizedBox(height: 6),
+                Text(favMap, style: const TextStyle(color: kYellow, fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text('Tap the star on a map in the MAPS tab to change it.',
+                    style: TextStyle(color: Colors.white38, fontSize: 11)),
               ],
             ),
           ),
@@ -778,33 +945,116 @@ class _HubState extends State<Hub> with SingleTickerProviderStateMixin {
   }
 
   // --- MAPS ---
+  Future<void> _loadMaps() async {
+    if (!mounted || mapsLoading) return;
+    setState(() => mapsLoading = true);
+    try {
+      final client = HttpClient()..connectionTimeout = const Duration(seconds: 10);
+      final req = await client.getUrl(Uri.parse(kMapCollectionUrl));
+      req.headers.set('User-Agent',
+          'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36');
+      final res = await req.close().timeout(const Duration(seconds: 25));
+      if (res.statusCode == 200) {
+        final body = await res.transform(utf8.decoder).join();
+        final found = <String, String>{};
+        for (final m in RegExp(r'\bze_[A-Za-z0-9_\-]+').allMatches(body)) {
+          final n = m.group(0)!;
+          if (n.length > 5) found.putIfAbsent(n.toLowerCase(), () => n);
+        }
+        if (found.length >= 50) {
+          final list = found.values.toList()
+            ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+          prefs?.setStringList('mapsCache', list);
+          if (mounted) {
+            setState(() {
+              allMaps = list;
+              mapsLive = true;
+            });
+          }
+        }
+      }
+      client.close();
+    } catch (_) {
+      // keep the built-in or cached list
+    } finally {
+      if (mounted) setState(() => mapsLoading = false);
+    }
+  }
+
   Widget _mapsTab() {
-    Color dc(String d) => d == 'EASY' ? kGreen : (d == 'MED' ? kYellow : kRose);
+    final q = mapQuery.trim().toLowerCase();
+    final list = q.isEmpty ? allMaps : allMaps.where((m) => m.toLowerCase().contains(q)).toList();
+    final now = (info?.map ?? '').toLowerCase();
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          for (final m in kMaps)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: _panel(
-                  child: Row(children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(m.name, style: const TextStyle(color: kYellow, fontWeight: FontWeight.bold)),
-                          Text(m.tip, style: const TextStyle(color: Colors.white60, fontSize: 11), maxLines: 2),
-                        ],
-                      ),
-                    ),
-                    Text(m.diff, style: TextStyle(color: dc(m.diff), fontWeight: FontWeight.bold)),
-                  ]),
-                ),
-              ),
+          TextField(
+            controller: searchCtl,
+            style: const TextStyle(color: kYellow, fontSize: 14),
+            onChanged: (v) => setState(() => mapQuery = v),
+            decoration: InputDecoration(
+              hintText: 'search ${allMaps.length} maps',
+              hintStyle: const TextStyle(color: Colors.white30),
+              prefixIcon: const Icon(Icons.search, color: kPink, size: 20),
+              isDense: true,
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: kPink.withOpacity(0.5))),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: kPink)),
             ),
+          ),
+          const SizedBox(height: 6),
+          Row(children: [
+            Expanded(
+              child: Text('${list.length} shown  •  ${mapsLive ? 'live GFL list' : 'built-in list (loading full list...)'}',
+                  style: const TextStyle(color: Colors.white54, fontSize: 11)),
+            ),
+            if (mapsLoading)
+              const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: kPink))
+            else
+              InkWell(onTap: _loadMaps, child: const Icon(Icons.refresh, color: kPink, size: 20)),
+          ]),
+          const SizedBox(height: 6),
+          Expanded(
+            child: _panel(
+              child: list.isEmpty
+                  ? const Text('no maps match', style: TextStyle(color: Colors.white38))
+                  : ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: list.length,
+                      itemExtent: 36,
+                      itemBuilder: (ctx, i) {
+                        final m = list[i];
+                        final isNow = m.toLowerCase() == now;
+                        final isFav = m.toLowerCase() == favMap.toLowerCase();
+                        return Row(children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() => favMap = m);
+                              prefs?.setString('favMap', m);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(6),
+                              child: Icon(isFav ? Icons.star : Icons.star_border,
+                                  color: isFav ? kPink : Colors.white38, size: 20),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(m,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: isNow ? kYellow : kGreen,
+                                    fontSize: 13,
+                                    fontWeight: isNow ? FontWeight.bold : FontWeight.normal)),
+                          ),
+                          if (isNow)
+                            const Text('NOW', style: TextStyle(color: kYellow, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ]);
+                      },
+                    ),
+            ),
+          ),
         ],
       ),
     );
